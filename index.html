@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dancefloor Celebration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            color: white;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            transition: background 0.8s ease;
+        }
+
+        .content {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px 60px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            margin: 20px;
+        }
+
+        #preMessage {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            animation: wiggle 0.8s infinite alternate;
+        }
+
+        #readyMessage {
+            display: none;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        #countdown {
+            display: none;
+            font-size: 5rem;
+            font-weight: bold;
+            letter-spacing: 10px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        #celebrateBtn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        #celebrateBtn:hover {
+            background: #ff4757;
+            transform: scale(1.05);
+        }
+
+        @keyframes wiggle {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(8px); }
+        }
+
+        .danceGif {
+            position: absolute;
+            width: 180px;
+            height: auto;
+            display: none;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .bottom-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 30;
+            display: flex;
+            gap: 12px;
+        }
+
+        .bottom-buttons button {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .bottom-buttons button:hover {
+            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        #restartBtn {
+            background: #4ecdc4;
+        }
+
+        #muteBtn {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #gifCounter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            z-index: 30;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content { padding: 20px 30px; margin: 15px; }
+            #readyMessage { font-size: 1.4rem; }
+            .danceGif { width: 120px; }
+            #preMessage { font-size: 1.2rem; }
+            .bottom-buttons button { padding: 6px 14px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="celebration">
+        <div class="content">
+            <div id="preMessage">🎉 Wanna find out what happens if you click the button? 🎉</div>
+            <div id="readyMessage">✨ Hey, you've been working so hard!<br>And it's time we celebrate! Are you ready? ✨</div>
+            <div id="countdown"></div>
+            <button id="celebrateBtn">Click me!</button>
+        </div>
+
+        <!-- Starting GIFs -->
+        <img class="danceGif" src="funny_gif1.gif" />
+        <img class="danceGif" src="funny_gif2.gif" />
+        <img class="danceGif" src="funny_gif3.gif" />
+
+        <audio id="celebrationSong" src="fart_phonk.mp3" loop></audio>
+        <div id="confetti-container"></div>
+        
+        <div class="bottom-buttons">
+            <button id="restartBtn">🎊 Celebrate Again 🎊</button>
+            <button id="muteBtn">🔊</button>
+        </div>
+        <div id="gifCounter">🕺 Dancing: 3</div>
+    </div>
+
+    <script>
+        const celebrationDiv = document.getElementById('celebration');
+        const preMessage = document.getElementById('preMessage');
+        const readyMessage = document.getElementById('readyMessage');
+        const countdownDiv = document.getElementById('countdown');
+        const button = document.getElementById('celebrateBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const confettiContainer = document.getElementById('confetti-container');
+        const song = document.getElementById('celebrationSong');
+        const contentDiv = document.querySelector('.content');
+        const gifCounter = document.getElementById('gifCounter');
+
+        let isMuted = false;
+        let multiplicationInterval = null;
+        let currentConfettiInterval = null;
+
+        // GIF files to use for multiplying
+        const gifFiles = ['funny_gif1.gif', 'funny_gif2.gif', 'funny_gif3.gif'];
+
+        function updateGifCounter() {
+            const count = document.querySelectorAll('.danceGif').length;
+            gifCounter.textContent = `🕺 Dancing: ${count}`;
+        }
+
+        // STRICT collision detection
+        function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+            return !(x1 + w1 < x2 || x2 + w2 < x1 || y1 + h1 < y2 || y2 + h2 < y1);
+        }
+
+        // NEW: Spread GIFs evenly across the ENTIRE screen
+        function getEvenlySpreadPositions(numGifs, width = 180, height = 180, padding = 15) {
+            const positions = [];
+            
+            // Calculate how many rows and columns we need to fill the screen
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            // Calculate max columns and rows based on GIF size
+            let maxCols = Math.floor(screenWidth / (width + padding));
+            let maxRows = Math.floor(screenHeight / (height + padding));
+            
+            // Make sure we have enough cells
+            let totalCells = maxCols * maxRows;
+            
+            // If we need more positions than cells, increase grid density
+            if (numGifs > totalCells) {
+                const smallerSize = Math.max(100, width * 0.7);
+                return getEvenlySpreadPositions(numGifs, smallerSize, smallerSize, padding);
+            }
+            
+            // Create a grid of possible positions
+            const gridPositions = [];
+            for (let row = 0; row < maxRows; row++) {
+                for (let col = 0; col < maxCols; col++) {
+                    const x = col * (width + padding) + padding;
+                    const y = row * (height + padding) + padding;
+                    // Only add if within bounds
+                    if (x + width <= screenWidth && y + height <= screenHeight) {
+                        gridPositions.push({ x, y });
+                    }
+                }
+            }
+            
+            // Shuffle the grid positions randomly
+            for (let i = gridPositions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gridPositions[i], gridPositions[j]] = [gridPositions[j], gridPositions[i]];
+            }
+            
+            // Take first N positions (spread across whole screen)
+            for (let i = 0; i < Math.min(numGifs, gridPositions.length); i++) {
+                positions.push(gridPositions[i]);
+            }
+            
+            // If we still need more positions (rare), add random ones
+            if (positions.length < numGifs) {
+                for (let i = positions.length; i < numGifs; i++) {
+                    let attempts = 0;
+                    let placed = false;
+                    while (!placed && attempts < 100) {
+                        const x = Math.random() * (screenWidth - width - padding * 2) + padding;
+                        const y = Math.random() * (screenHeight - height - padding * 2) + padding;
+                        let overlap = false;
+                        for (let pos of positions) {
+                            if (checkCollision(x, y, width, height, pos.x, pos.y, width, height)) {
+                                overlap = true;
+                                break;
+                            }
+                        }
+                        if (!overlap) {
+                            positions.push({ x, y });
+                            placed = true;
+                        }
+                        attempts++;
+                    }
+                }
+            }
+            
+            return positions;
+        }
+
+        function repositionAllGifs() {
+            const currentGifs = document.querySelectorAll('.danceGif');
+            if (currentGifs.length === 0) return;
+            
+            // Calculate GIF size based on screen (bigger screen = bigger GIFs up to a point)
+            let gifSize = Math.min(200, Math.max(140, window.innerWidth / 10));
+            
+            // Update CSS for all GIFs
+            currentGifs.forEach(gif => {
+                gif.style.width = gifSize + 'px';
+            });
+            
+            const positions = getEvenlySpreadPositions(currentGifs.length, gifSize, gifSize, 15);
+            currentGifs.forEach((gif, i) => {
+                if (positions[i]) {
+                    gif.style.left = positions[i].x + 'px';
+                    gif.style.top = positions[i].y + 'px';
+                }
+            });
+        }
+
+        // MULTIPLY FUNCTION - adds new dancing GIFs
+        function multiplyGifs() {
+            const currentGifs = document.querySelectorAll('.danceGif');
+            const currentCount = currentGifs.length;
+            
+            // Stop multiplying at 80 GIFs (performance limit)
+            if (currentCount >= 80) {
+                console.log("Maximum dancers reached! 🎉");
+                return;
+            }
+            
+            // Number of new GIFs to add (increases as more appear)
+            let newCount = Math.min(Math.floor(currentCount * 0.35) + 1, 12);
+            
+            for (let i = 0; i < newCount; i++) {
+                const randomGif = gifFiles[Math.floor(Math.random() * gifFiles.length)];
+                const newGif = document.createElement('img');
+                newGif.className = 'danceGif';
+                newGif.src = randomGif;
+                newGif.style.display = 'block';
+                newGif.style.position = 'absolute';
+                celebrationDiv.appendChild(newGif);
+            }
+            
+            // Reposition all GIFs to fill the screen evenly
+            setTimeout(() => {
+                repositionAllGifs();
+                updateGifCounter();
+                
+                // Pop effect when new GIFs appear
+                const flash = document.createElement('div');
+                flash.style.position = 'fixed';
+                flash.style.top = '50%';
+                flash.style.left = '50%';
+                flash.style.width = '100px';
+                flash.style.height = '100px';
+                flash.style.background = 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)';
+                flash.style.borderRadius = '50%';
+                flash.style.transform = 'translate(-50%, -50%)';
+                flash.style.pointerEvents = 'none';
+                flash.style.zIndex = '100';
+                flash.style.animation = 'pop 0.3s ease-out';
+                celebrationDiv.appendChild(flash);
+                setTimeout(() => flash.remove(), 300);
+            }, 50);
+        }
+
+        // Add pop animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pop {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function launchConfetti() {
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                confetti.style.top = '-10px';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.opacity = Math.random() * 0.8 + 0.3;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confettiContainer.appendChild(confetti);
+
+                const fallDuration = Math.random() * 2500 + 2000;
+                confetti.animate([
+                    { transform: `rotate(0deg)`, top: '-10px' },
+                    { transform: `rotate(${Math.random() * 720}deg)`, top: window.innerHeight + 'px' }
+                ], { duration: fallDuration, easing: 'ease-in' });
+
+                setTimeout(() => confetti.remove(), fallDuration);
+            }
+        }
+
+        // Handle window resize - reposition all GIFs
+        window.addEventListener('resize', () => {
+            if (contentDiv.style.display === 'none') {
+                repositionAllGifs();
+            }
+        });
+
+        function startCelebration() {
+            button.style.display = 'none';
+            preMessage.style.display = 'none';
+            readyMessage.style.display = 'block';
+            
+            let countdown = 3;
+            countdownDiv.style.display = 'block';
+            countdownDiv.textContent = countdown;
+            
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    countdownDiv.textContent = countdown;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownDiv.style.display = 'none';
+                    readyMessage.style.display = 'none';
+                    contentDiv.style.display = 'none';
+                    
+                    celebrationDiv.style.background = "linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%), repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 20px, transparent 20px, transparent 40px)";
+                    
+                    // Show initial GIFs
+                    const initialGifs = document.querySelectorAll('.danceGif');
+                    initialGifs.forEach(gif => {
+                        gif.style.display = 'block';
+                    });
+                    
+                    // Position them evenly across ENTIRE screen
+                    repositionAllGifs();
+                    
+                    // START MULTIPLYING! Every 3.5 seconds, new GIFs spawn
+                    multiplicationInterval = setInterval(() => {
+                        multiplyGifs();
+                    }, 3500);
+                    
+                    // Play music (loop is enabled via HTML 'loop' attribute)
+                    if (!isMuted && song.src) {
+                        song.loop = true;  // Ensure looping
+                        song.play().catch(e => console.log('Audio play failed:', e));
+                    }
+                    
+                    // Show GIF counter
+                    gifCounter.style.display = 'block';
+                    updateGifCounter();
+                    
+                    // Confetti rain
+                    if (currentConfettiInterval) clearInterval(currentConfettiInterval);
+                    currentConfettiInterval = setInterval(launchConfetti, 400);
+                    setTimeout(() => {
+                        if (currentConfettiInterval) clearInterval(currentConfettiInterval);
+                        currentConfettiInterval = null;
+                    }, 10000);
+                }
+            }, 1000);
+        }
+        
+        function resetCelebration() {
+            if (multiplicationInterval) {
+                clearInterval(multiplicationInterval);
+                multiplicationInterval = null;
+            }
+            
+            if (currentConfettiInterval) {
+                clearInterval(currentConfettiInterval);
+                currentConfettiInterval = null;
+            }
+            
+            // Remove all extra GIFs except original 3
+            const allGifsElements = document.querySelectorAll('.danceGif');
+            for (let i = 3; i < allGifsElements.length; i++) {
+                allGifsElements[i].remove();
+            }
+            
+            // Reset original 3 GIFs
+            const originalGifs = document.querySelectorAll('.danceGif');
+            originalGifs.forEach((gif, idx) => {
+                if (idx < 3) {
+                    gif.style.display = 'none';
+                    gif.src = gifFiles[idx];
+                }
+            });
+            
+            contentDiv.style.display = 'flex';
+            readyMessage.style.display = 'none';
+            countdownDiv.style.display = 'none';
+            button.style.display = 'inline-block';
+            preMessage.style.display = 'block';
+            gifCounter.style.display = 'none';
+            
+            celebrationDiv.style.background = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)";
+            
+            song.pause();
+            song.currentTime = 0;
+            confettiContainer.innerHTML = '';
+        }
+        
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            if (isMuted) {
+                song.pause();
+                muteBtn.textContent = '🔇';
+            } else {
+                muteBtn.textContent = '🔊';
+                if (contentDiv.style.display === 'none') {
+                    song.loop = true;
+                    song.play().catch(e => console.log('Playback prevented'));
+                }
+            }
+        });
+        
+        button.addEventListener('click', startCelebration);
+        restartBtn.addEventListener('click', resetCelebration);
+        
+        console.log('🎉 Song will loop! GIFs will fill the ENTIRE screen evenly!');
+    </script>
+</body>
+</html>
