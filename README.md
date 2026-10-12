@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="asset/demo.mp4" alt="Ultimate Celebration Party Demo" width="800">
+  <img src="asset/demo.gif" alt="Ultimate Celebration Party Demo" width="800">
 </p>
 
 ---
