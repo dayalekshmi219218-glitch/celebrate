@@ -40,15 +40,15 @@ And what better way to celebrate than with fart phonk music, confetti, and an un
 
 ### Initial Screen
 
-![Ultimate Celebration Party - Initial Screen](asset/home.png)
+![Ultimate Celebration Party - Initial Screen](asset/home.JPG)
 
 ### Countdown Screen
 
-![Ultimate Celebration Party - Initial Screen](asset/countdown.png)
+![Ultimate Celebration Party - Initial Screen](asset/countdown.jpg)
 
 ### Celebration in Action
 
-![Ultimate Celebration Party - Active Celebration](asset/celebration.png)
+![Ultimate Celebration Party - Active Celebration](asset/celebration.jpg)
 
 ## 🔄 Application Workflow
 
@@ -93,7 +93,7 @@ celebrate/
 │
 ├── asset/
 │   ├── demo.mp4
-│   ├── home.jpg
+│   ├── home.JPG
 |   ├── countdown.jpg
 │   └── celebration.jpg
 │
