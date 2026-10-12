@@ -92,7 +92,7 @@ This project explores several fundamental frontend development concepts:
 celebrate/
 │
 ├── asset/
-│   ├── demo.mp4
+│   ├── demo.gif
 │   ├── home.JPG
 |   ├── countdown.jpg
 │   └── celebration.jpg
