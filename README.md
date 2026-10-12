@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="asset/demo.gif" alt="Ultimate Celebration Party Demo" width="800">
+  <img src="asset/demo.mp4" alt="Ultimate Celebration Party Demo" width="800">
 </p>
 
 ---
@@ -40,15 +40,15 @@ And what better way to celebrate than with fart phonk music, confetti, and an un
 
 ### Initial Screen
 
-![Ultimate Celebration Party - Initial Screen](asset/screenshot-home.png)
+![Ultimate Celebration Party - Initial Screen](asset/home.png)
 
 ### Countdown Screen
 
-![Ultimate Celebration Party - Initial Screen](asset/screenshot-countdown.png)
+![Ultimate Celebration Party - Initial Screen](asset/countdown.png)
 
 ### Celebration in Action
 
-![Ultimate Celebration Party - Active Celebration](asset/screenshot-celebration.png)
+![Ultimate Celebration Party - Active Celebration](asset/celebration.png)
 
 ## 🔄 Application Workflow
 
@@ -93,9 +93,9 @@ celebrate/
 │
 ├── asset/
 │   ├── demo.mp4
-│   ├── screenshot-home.jpg
-|   ├── screenshot-countdown.jpg
-│   └── screenshot-celebration.jpg
+│   ├── home.jpg
+|   ├── countdown.jpg
+│   └── celebration.jpg
 │
 ├── README.md
 ├── index.html
